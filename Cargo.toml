@@ -1,0 +1,32 @@
+[package]
+name = "llmtop"
+version = "0.1.0"
+edition = "2024"
+description = "Realtime TUI monitor for local LLM servers (ollama, llama.cpp). The only GPU monitor that knows what model is running and how much each token costs you in energy and dollar-equivalent."
+license = "MIT"
+readme = "README.md"
+keywords = ["llm", "ollama", "monitoring", "tui", "gpu"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+ratatui = "0.30"
+crossterm = "0.28"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "signal", "sync"] }
+clap = { version = "4", features = ["derive"] }
+color-eyre = "0.6"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+[target.'cfg(any(target_os = "linux", target_os = "windows"))'.dependencies]
+nvml-wrapper = { version = "0.11", optional = true }
+
+[features]
+default = ["nvidia"]
+nvidia = ["dep:nvml-wrapper"]
+apple = []
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
