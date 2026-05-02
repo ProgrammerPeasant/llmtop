@@ -10,17 +10,17 @@
 - How much energy did this work session burn? How much CO₂?
 
 ```
-╭─ llmtop · NVIDIA RTX 4090 · 24 GB ───────────────────────────╮
-│ MODEL                  VRAM      TOK/S   POWER   J/TOK  $/1K* │
-│ qwen2.5-coder:32b      18.2 GB    47.3   312 W    6.6   0.015 │
-│ deepseek-r1:7b          4.1 GB     0.0    78 W   idle   ----- │
+╭─ llmtop · NVIDIA RTX 4090 · 24 GB ────────────────────────────╮
+│ MODEL              VRAM     TOK/S   POWER   J/TOK    $/1K*    │
+│ qwen2.5-coder:32b  18.2 GB   47.3   312 W     6.6    0.015    │
+│ deepseek-r1:7b      4.1 GB    0.0    78 W    idle    -----    │
 │                                                               │
 │ ── GPU util · 87% ────────────────────────────────────────────│
-│  ▁▂▃▅▆▇▇▇▆▇▇▇▆▆▇▇▇▆▇▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇                  │
-│ ── Power · 391 W / 450 W ────────────────────────────────────│
-│  ▃▄▅▇▇▆▇▇▇▆▇▇▇▆▆▇▇▇▆▇▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇                  │
+│ ▁▂▃▅▆▇▇▇▆▇▇▇▆▆▇▇▇▆▇▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇│
+│ ── Power · 391 W / 450 W ─────────────────────────────────────│
+│ ▃▄▅▇▇▆▇▇▇▆▇▇▇▆▆▇▇▇▆▇▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇│
 │                                                               │
-│ Session 0:42:11 · 0.84 kWh · $0.13 · 0.34 kg CO₂eq            │
+│ Session 0:42:11 · 0.84 kWh · $0.13 · 0.34 kg CO2eq            │
 │ [q]uit  [p]ause  [c]lear                                      │
 ╰───────────────────────────────────────────────────────────────╯
 ```
@@ -78,6 +78,22 @@ Hotkeys: `q` quit · `p` pause · `c` clear session totals.
 - [ ] **v0.3** — vLLM, LM Studio, MLX
 - [ ] **v0.4** — Prometheus exporter, JSON metrics, write-to-file mode
 - [ ] **v0.5** — Multi-GPU, AMD ROCm, Intel Arc
+
+## Recording the demo GIF
+
+```bash
+# 1. Have ollama serving with at least one running model:
+ollama serve &
+ollama run qwen2.5-coder:7b "explain quicksort"
+# 2. Install llmtop locally so the binary resolves on PATH:
+cargo install --path .
+# 3. Record:
+vhs media/demo.tape          # outputs media/demo.gif
+```
+
+VHS needs `ffmpeg` and `ttyd` alongside it (`brew install vhs ffmpeg ttyd` on macOS,
+WSL2 on Windows — `ttyd` does not run natively on Win). See `media/demo.tape` for
+the full prerequisite block.
 
 ## Found wrong API price? PR welcome
 
