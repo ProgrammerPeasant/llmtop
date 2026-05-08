@@ -1,9 +1,3 @@
-mod app;
-mod collectors;
-mod config;
-mod pricing;
-mod ui;
-
 use clap::Parser;
 use color_eyre::eyre::Result;
 use crossterm::{
@@ -11,18 +5,10 @@ use crossterm::{
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
+use llmtop::{AppEvent, app::App, collectors, config::Cli, ui};
 use ratatui::{Terminal, prelude::CrosstermBackend};
 use std::{io, time::Duration};
 use tokio::sync::mpsc;
-
-use crate::{app::App, config::Cli};
-
-pub enum AppEvent {
-    Input(crossterm::event::Event),
-    Tick,
-    Hardware(collectors::HardwareSnapshot),
-    Ollama(Vec<collectors::ModelInfo>),
-}
 
 #[tokio::main]
 async fn main() -> Result<()> {
