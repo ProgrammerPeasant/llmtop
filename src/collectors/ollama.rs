@@ -18,9 +18,10 @@ struct PsModel {
     size_vram: u64,
 }
 
-/// Tokens/sec is treated as 0 if no proxy sample arrived in this window —
-/// the model is loaded but idle. Generous so a slow generation still counts.
-const TOK_FRESH: Duration = Duration::from_secs(5);
+/// Tokens/sec is treated as 0 if no proxy sample arrived in this window.
+/// Long enough that the last measured throughput stays visible between
+/// generations; short enough that it doesn't survive a model unload.
+const TOK_FRESH: Duration = Duration::from_secs(30);
 
 pub async fn poll(base_url: &str, sink: Option<&Sink>) -> Vec<ModelInfo> {
     let url = format!("{}/api/ps", base_url.trim_end_matches('/'));
