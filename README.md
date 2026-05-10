@@ -11,24 +11,7 @@
 
 ![demo](media/demo.gif)
 
-```
-┌ llmtop · NVIDIA RTX 4090 · 24 GB ─────────────────────────────┐
-│ MODEL              VRAM      TOK/S   POWER   J/TOK   $/1K*    │
-│ qwen2.5-coder:32b  18.2 GB    47.3   312 W     6.6   0.015    │
-│ deepseek-r1:7b      4.1 GB     0.0    78 W    idle   -----    │
-└───────────────────────────────────────────────────────────────┘
-┌ GPU util  87% ──────────────────┐┌ Power  391 W / 450 W ──────┐
-│100%      ▄▄▄ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ││450W       ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ │
-│ 50  ▄▄▄▄▄███ ███████████████████ ││225  ▄▄▄▄▄▄███████████████ │
-│  0█████████████████████████████ ││  0████████████████████████ │
-└─────────────────────────────────┘└────────────────────────────┘
-┌───────────────────────────────────────────────────────────────┐
-│Session 0:42:11 · 0.84 kWh · $0.13 · 0.34 kg CO₂eq · tokens: … │
-│[q]uit  [p]ause  [c]lear                                       │
-└───────────────────────────────────────────────────────────────┘
-```
-
-\* per-1K output tokens at the cost of running on a hosted API. Default: Claude Sonnet. Switch with `--compare gpt-4o | gemini-2.5`.
+The `$/1K` column is per-1K output tokens at the cost of running on a hosted API. Default: Claude Sonnet. Switch with `--compare gpt-4o | gemini-2.5`.
 
 ## vs nvtop / nvitop / asitop
 
@@ -59,9 +42,25 @@ llmtop                                  # poll http://127.0.0.1:11434
 llmtop --ollama-url http://gpu:11434    # remote ollama
 llmtop --compare gpt-4o                 # change cost-equivalent provider
 llmtop --grid-co2 230                   # local grid intensity (gCO₂/kWh)
+llmtop --proxy 11435                    # tee Ollama through us for live tok/s
 ```
 
 Hotkeys: `q` quit, `p` pause, `c` clear session totals.
+
+### Live tokens/sec
+
+Ollama does not expose live throughput on `/api/ps`. To get the `TOK/S` and
+`J/TOK` columns populated, run llmtop in proxy mode and point your client at
+the proxy port:
+
+```bash
+llmtop --proxy 11435 &
+OLLAMA_HOST=http://127.0.0.1:11435 ollama run qwen2.5-coder:7b "explain quicksort"
+```
+
+llmtop forwards every request to the upstream Ollama unchanged and reads
+`eval_count` / `eval_duration` from the responses. Without `--proxy`, models
+still appear in the table with VRAM, but `TOK/S` stays at `idle`.
 
 ## What's measured
 
@@ -70,7 +69,7 @@ Hotkeys: `q` quit, `p` pause, `c` clear session totals.
 | GPU util / VRAM / power / temp | NVML (Linux, Windows). IOReport (macOS) in v0.2.    |
 | Multi-GPU                      | Aggregated (sum power/VRAM, avg util) in v0.1.      |
 | Loaded models, per-model VRAM  | Ollama `/api/ps`                                    |
-| Tokens/sec live                | Proxy mode (`--proxy`) in v0.2                      |
+| Tokens/sec live                | Reverse proxy (`--proxy <port>`) parses `eval_count` / `eval_duration` from `/api/generate` and `/api/chat` |
 | J/token                        | `power_w / tokens_per_sec`                          |
 | Session kWh                    | Trapezoidal integration of GPU power over time      |
 | API-equivalent $               | Provider price tables in `src/pricing/mod.rs`       |
@@ -78,7 +77,7 @@ Hotkeys: `q` quit, `p` pause, `c` clear session totals.
 
 ## Roadmap
 
-- [ ] v0.2: Apple Silicon (M1–M5) via IOReport, llama.cpp Prometheus, proxy mode for live tokens/sec, per-GPU breakdown view (`--per-gpu`)
+- [ ] v0.2: Apple Silicon (M1–M5) via IOReport, llama.cpp Prometheus, per-GPU breakdown view (`--per-gpu`)
 - [ ] v0.3: vLLM, LM Studio, MLX
 - [ ] v0.4: Prometheus exporter, JSON metrics, write-to-file mode
 - [ ] v0.5: AMD ROCm, Intel Arc

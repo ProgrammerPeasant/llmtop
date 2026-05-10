@@ -44,6 +44,6 @@ pub async fn poll_hardware() -> HardwareSnapshot {
     HardwareSnapshot::default()
 }
 
-pub async fn poll_ollama(base_url: &str) -> Vec<ModelInfo> {
-    ollama::poll(base_url).await
+pub async fn poll_ollama(base_url: &str, sink: Option<&crate::proxy::Sink>) -> Vec<ModelInfo> {
+    ollama::poll(base_url, sink).await
 }
