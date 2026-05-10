@@ -14,9 +14,9 @@ pub fn draw(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Min(6),    // models table
-            Constraint::Length(7), // sparklines (3 lines each + borders)
-            Constraint::Length(3), // session footer
+            Constraint::Min(6),     // models table
+            Constraint::Length(11), // charts (side-by-side, taller)
+            Constraint::Length(3),  // session footer
         ])
         .split(area);
 
