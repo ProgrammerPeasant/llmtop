@@ -18,4 +18,10 @@ pub struct Cli {
     /// Disable color output.
     #[arg(long)]
     pub no_color: bool,
+
+    /// Run a transparent reverse proxy in front of Ollama on this port.
+    /// Point your client at it (e.g. `OLLAMA_HOST=http://127.0.0.1:<port>`)
+    /// and llmtop will report live tokens/sec from intercepted responses.
+    #[arg(long, value_name = "PORT")]
+    pub proxy: Option<u16>,
 }

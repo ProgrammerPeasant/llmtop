@@ -2,6 +2,7 @@ mod app;
 mod collectors;
 mod config;
 mod pricing;
+mod proxy;
 mod ui;
 
 use clap::Parser;
@@ -90,13 +91,23 @@ async fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, cli: Cli) ->
         }
     });
 
+    // Optional proxy: when --proxy is set, intercept generate/chat for tok/s.
+    let sink = app.cli.proxy.map(|_| proxy::new_sink());
+    if let (Some(port), Some(s)) = (app.cli.proxy, sink.clone()) {
+        let upstream = app.cli.ollama_url.clone();
+        tokio::spawn(async move {
+            let _ = proxy::run(port, upstream, s).await;
+        });
+    }
+
     // Ollama poll.
     let ollama_url = app.cli.ollama_url.clone();
+    let sink_for_poll = sink.clone();
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(Duration::from_secs(1));
         loop {
             interval.tick().await;
-            let models = collectors::poll_ollama(&ollama_url).await;
+            let models = collectors::poll_ollama(&ollama_url, sink_for_poll.as_ref()).await;
             if tx.send(AppEvent::Ollama(models)).is_err() {
                 break;
             }
