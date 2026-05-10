@@ -55,12 +55,17 @@ fn fmt_co2(g: f64) -> String {
     }
 }
 
-/// Cents below $1, dollars above. Residential power is so cheap that a
-/// short session is fractions of a cent — dollars round to $0.00.
+/// Always dollars. For tiny values, expand decimals so two significant
+/// digits remain visible — `$0.00` is useless feedback.
 fn fmt_cost(usd: f64) -> String {
-    if usd < 1.0 {
-        format!("{:.2}¢", usd * 100.0)
-    } else {
-        format!("${usd:.2}")
+    if !(usd > 0.0) {
+        return "$0.00".into();
     }
+    if usd >= 1.0 {
+        return format!("${usd:.2}");
+    }
+    // 0.05 → 2 decimals ($0.05); 0.009 → 4 ($0.0090); 0.00007 → 6 ($0.000070).
+    let leading_zeros = (-usd.log10()).ceil().max(1.0) as usize;
+    let decimals = (leading_zeros + 1).clamp(2, 8);
+    format!("${usd:.*}", decimals)
 }
