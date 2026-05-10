@@ -1,43 +1,48 @@
 # llmtop
 
-> The only GPU monitor that knows what model is running and how much each token costs you in energy and dollar-equivalent.
+> A GPU monitor that knows which LLM is running and what each token costs in energy and dollar-equivalent.
 
-`llmtop` is a realtime terminal monitor for **local LLM servers** (Ollama, llama.cpp coming soon). It links your GPU's wattage to the model that's burning it — so you can finally answer:
+`llmtop` is a terminal monitor for local LLM servers (Ollama today, llama.cpp next). It links GPU wattage to the model burning it, so you can answer:
 
-- Which loaded model is eating my VRAM right now?
-- How many joules per token does this 32B coder cost me?
-- If I were paying Claude Sonnet API instead, what would this generation have cost?
-- How much energy did this work session burn? How much CO₂?
+- Which loaded model is using my VRAM right now?
+- How many joules per token does this 32B coder cost?
+- What would this generation have cost on the Claude Sonnet API?
+- How much energy and CO₂ did this work session burn?
+
+![demo](media/demo.gif)
 
 ```
-╭─ llmtop · NVIDIA RTX 4090 · 24 GB ────────────────────────────╮
-│ MODEL              VRAM     TOK/S   POWER   J/TOK    $/1K*    │
-│ qwen2.5-coder:32b  18.2 GB   47.3   312 W     6.6    0.015    │
-│ deepseek-r1:7b      4.1 GB    0.0    78 W    idle    -----    │
-│                                                               │
-│ ── GPU util · 87% ────────────────────────────────────────────│
-│ ▁▂▃▅▆▇▇▇▆▇▇▇▆▆▇▇▇▆▇▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇│
-│ ── Power · 391 W / 450 W ─────────────────────────────────────│
-│ ▃▄▅▇▇▆▇▇▇▆▇▇▇▆▆▇▇▇▆▇▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇▇▆▇▇│
-│                                                               │
-│ Session 0:42:11 · 0.84 kWh · $0.13 · 0.34 kg CO2eq            │
-│ [q]uit  [p]ause  [c]lear                                      │
-╰───────────────────────────────────────────────────────────────╯
+┌ llmtop · NVIDIA RTX 4090 · 24 GB ─────────────────────────────┐
+│ MODEL              VRAM      TOK/S   POWER   J/TOK   $/1K*    │
+│ qwen2.5-coder:32b  18.2 GB    47.3   312 W     6.6   0.015    │
+│ deepseek-r1:7b      4.1 GB     0.0    78 W    idle   -----    │
+└───────────────────────────────────────────────────────────────┘
+┌ GPU util  87% ──────────────────┐┌ Power  391 W / 450 W ──────┐
+│100%      ▄▄▄ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ││450W       ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ │
+│ 50  ▄▄▄▄▄███ ███████████████████ ││225  ▄▄▄▄▄▄███████████████ │
+│  0█████████████████████████████ ││  0████████████████████████ │
+└─────────────────────────────────┘└────────────────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│Session 0:42:11 · 0.84 kWh · $0.13 · 0.34 kg CO₂eq · tokens: … │
+│[q]uit  [p]ause  [c]lear                                       │
+└───────────────────────────────────────────────────────────────┘
 ```
 
-\* per-1K output tokens, equivalent cost on Claude Sonnet (configurable: `--compare gpt-4o | gemini-2.5`)
+\* per-1K output tokens at the cost of running on a hosted API. Default: Claude Sonnet. Switch with `--compare gpt-4o | gemini-2.5`.
 
-## Why not nvtop / nvitop / asitop?
+## vs nvtop / nvitop / asitop
 
-| Feature | nvtop | nvitop | asitop | **llmtop** |
-|---|:---:|:---:|:---:|:---:|
-| GPU util / VRAM / power | ✅ | ✅ | ✅ | ✅ |
-| **Knows loaded LLM models** | ❌ | ❌ | ❌ | ✅ |
-| **Per-model VRAM share** | ❌ | ❌ | ❌ | ✅ |
-| **Joules per token** | ❌ | ❌ | ❌ | ✅ |
-| **API-equivalent $ cost** | ❌ | ❌ | ❌ | ✅ |
-| **Session kWh + CO₂** | ❌ | ❌ | ❌ | ✅ |
-| Cross-platform | partial | ⚠️ | macOS only | ✅ Linux + Win + macOS |
+| Feature                   | nvtop   | nvitop | asitop     | **llmtop**            |
+| ------------------------- | :-----: | :----: | :--------: | :-------------------: |
+| GPU util / VRAM / power   | ✅      | ✅     | ✅         | ✅                    |
+| Knows loaded LLM models   | ❌      | ❌     | ❌         | ✅                    |
+| Per-model VRAM share      | ❌      | ❌     | ❌         | ✅                    |
+| Joules per token          | ❌      | ❌     | ❌         | ✅                    |
+| API-equivalent $ cost     | ❌      | ❌     | ❌         | ✅                    |
+| Session kWh + CO₂         | ❌      | ❌     | ❌         | ✅                    |
+| Cross-platform            | partial | ⚠️    | macOS only | Linux + Win + macOS\* |
+
+\* macOS Apple Silicon support lands in v0.2.
 
 ## Install
 
@@ -45,59 +50,72 @@
 cargo install llmtop
 ```
 
-Pre-built binaries (Linux, macOS, Windows) — see [Releases](../../releases).
+Pre-built binaries arrive with v0.1 release.
 
 ## Usage
 
-Run alongside Ollama:
-
 ```bash
-llmtop                                  # default: poll http://127.0.0.1:11434
+llmtop                                  # poll http://127.0.0.1:11434
 llmtop --ollama-url http://gpu:11434    # remote ollama
 llmtop --compare gpt-4o                 # change cost-equivalent provider
-llmtop --grid-co2 230                   # your local grid intensity (gCO₂/kWh)
+llmtop --grid-co2 230                   # local grid intensity (gCO₂/kWh)
 ```
 
-Hotkeys: `q` quit · `p` pause · `c` clear session totals.
+Hotkeys: `q` quit, `p` pause, `c` clear session totals.
 
 ## What's measured
 
-| Metric | Source |
-|---|---|
-| GPU util / VRAM / power / temp | NVML (Linux + Windows), IOReport (macOS, planned v0.2) |
-| Loaded models + per-model VRAM | Ollama `/api/ps` |
-| Tokens/sec (live) | proxy mode (planned v0.2) — `--proxy` flag |
-| J/token | `power_w / tokens_per_sec` |
-| Session kWh | trapezoidal integration of GPU power over time |
-| API-equivalent $ | configurable provider price tables (`pricing/mod.rs`) |
-| CO₂eq | session kWh × `--grid-co2` (gCO₂/kWh) |
+| Metric                         | Source                                              |
+| ------------------------------ | --------------------------------------------------- |
+| GPU util / VRAM / power / temp | NVML (Linux, Windows). IOReport (macOS) in v0.2.    |
+| Multi-GPU                      | Aggregated (sum power/VRAM, avg util) in v0.1.      |
+| Loaded models, per-model VRAM  | Ollama `/api/ps`                                    |
+| Tokens/sec live                | Proxy mode (`--proxy`) in v0.2                      |
+| J/token                        | `power_w / tokens_per_sec`                          |
+| Session kWh                    | Trapezoidal integration of GPU power over time      |
+| API-equivalent $               | Provider price tables in `src/pricing/mod.rs`       |
+| CO₂eq                          | session kWh × `--grid-co2` (gCO₂/kWh)               |
 
 ## Roadmap
 
-- [ ] **v0.2** — Apple Silicon (M1–M5) via IOReport, llama.cpp Prometheus endpoint, proxy mode for live tokens/sec
-- [ ] **v0.3** — vLLM, LM Studio, MLX
-- [ ] **v0.4** — Prometheus exporter, JSON metrics, write-to-file mode
-- [ ] **v0.5** — Multi-GPU, AMD ROCm, Intel Arc
+- [ ] v0.2: Apple Silicon (M1–M5) via IOReport, llama.cpp Prometheus, proxy mode for live tokens/sec, per-GPU breakdown view (`--per-gpu`)
+- [ ] v0.3: vLLM, LM Studio, MLX
+- [ ] v0.4: Prometheus exporter, JSON metrics, write-to-file mode
+- [ ] v0.5: AMD ROCm, Intel Arc
 
 ## Recording the demo GIF
 
+Linux / macOS use [vhs](https://github.com/charmbracelet/vhs):
+
 ```bash
-# 1. Have ollama serving with at least one running model:
+brew install vhs ffmpeg ttyd                    # macOS
+sudo apt install ffmpeg && go install github.com/tsl0922/ttyd@latest
+
 ollama serve &
-ollama run qwen2.5-coder:7b "explain quicksort"
-# 2. Install llmtop locally so the binary resolves on PATH:
+ollama run qwen2.5-coder:7b "explain quicksort" # produce real load
 cargo install --path .
-# 3. Record:
-vhs media/demo.tape          # outputs media/demo.gif
+vhs media/demo.tape                             # outputs media/demo.gif
 ```
 
-VHS needs `ffmpeg` and `ttyd` alongside it (`brew install vhs ffmpeg ttyd` on macOS,
-WSL2 on Windows — `ttyd` does not run natively on Win). See `media/demo.tape` for
-the full prerequisite block.
+Windows: `ttyd` is not available natively, so vhs cannot run. Use ffmpeg's `gdigrab`:
 
-## Found wrong API price? PR welcome
+```bat
+:: 1. Open llmtop in a cmd window with a known title:
+media\record_demo.bat
 
-Edit `src/pricing/mod.rs`. The cost-equivalent table is community-maintained.
+:: 2. From a second shell, capture and convert (22s @ 12fps):
+ffmpeg -f gdigrab -framerate 12 -i title=LLMTOP_DEMO -t 22 ^
+  -c:v libx264 -pix_fmt yuv420p media\demo.mp4
+ffmpeg -i media\demo.mp4 -vf "fps=12,scale=1100:-1:flags=lanczos,palettegen" media\palette.png
+ffmpeg -i media\demo.mp4 -i media\palette.png ^
+  -filter_complex "fps=12,scale=1100:-1:flags=lanczos[x];[x][1:v]paletteuse" media\demo.gif
+```
+
+Trigger load with `ollama run <model> "<long prompt>"` while recording.
+
+## Wrong API price? Open a PR
+
+Edit `src/pricing/mod.rs`.
 
 ## License
 

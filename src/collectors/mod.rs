@@ -7,12 +7,19 @@ pub mod ollama;
 
 #[derive(Debug, Clone, Default)]
 pub struct HardwareSnapshot {
+    /// Aggregated label. Single GPU: model name. Homogeneous cluster: "Nx <model>".
+    /// Mixed cluster: "Nx GPU (mixed)".
     pub gpu_name: String,
+    pub gpu_count: u32,
+    /// Average across GPUs (0..=100).
     pub gpu_util_pct: u32,
+    /// Sum across GPUs.
     pub vram_total_mb: u64,
     pub vram_used_mb: u64,
+    /// Sum across GPUs.
     pub power_w: f64,
     pub power_limit_w: f64,
+    /// Max (hottest) across GPUs.
     pub temp_c: u32,
 }
 
