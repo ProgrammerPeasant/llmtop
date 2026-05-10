@@ -53,7 +53,7 @@ mod imp {
         }
 
         let gpu_name = aggregate_name(&names);
-        let util_avg = if util_n > 0 { (util_sum / util_n) as u32 } else { 0 };
+        let util_avg = util_sum.checked_div(util_n).unwrap_or(0) as u32;
 
         Some(HardwareSnapshot {
             gpu_name,
