@@ -83,36 +83,6 @@ Hotkeys: `q` quit, `p` pause, `c` clear session totals.
 - [ ] v0.4: Prometheus exporter, JSON metrics, write-to-file mode
 - [ ] v0.5: AMD ROCm, Intel Arc
 
-## Recording the demo GIF
-
-Linux / macOS use [vhs](https://github.com/charmbracelet/vhs):
-
-```bash
-brew install vhs ffmpeg ttyd                    # macOS
-sudo apt install ffmpeg && go install github.com/tsl0922/ttyd@latest
-
-ollama serve &
-ollama run qwen2.5-coder:7b "explain quicksort" # produce real load
-cargo install --path .
-vhs media/demo.tape                             # outputs media/demo.gif
-```
-
-Windows: `ttyd` is not available natively, so vhs cannot run. Use ffmpeg's `gdigrab`:
-
-```bat
-:: 1. Open llmtop in a cmd window with a known title:
-media\record_demo.bat
-
-:: 2. From a second shell, capture and convert (22s @ 12fps):
-ffmpeg -f gdigrab -framerate 12 -i title=LLMTOP_DEMO -t 22 ^
-  -c:v libx264 -pix_fmt yuv420p media\demo.mp4
-ffmpeg -i media\demo.mp4 -vf "fps=12,scale=1100:-1:flags=lanczos,palettegen" media\palette.png
-ffmpeg -i media\demo.mp4 -i media\palette.png ^
-  -filter_complex "fps=12,scale=1100:-1:flags=lanczos[x];[x][1:v]paletteuse" media\demo.gif
-```
-
-Trigger load with `ollama run <model> "<long prompt>"` while recording.
-
 ## Wrong API price? Open a PR
 
 Edit `src/pricing/mod.rs`.
