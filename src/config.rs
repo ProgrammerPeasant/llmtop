@@ -19,9 +19,19 @@ pub struct Cli {
     #[arg(long)]
     pub no_color: bool,
 
-    /// Run a transparent reverse proxy in front of Ollama on this port.
-    /// Point your client at it (e.g. `OLLAMA_HOST=http://127.0.0.1:<port>`)
-    /// and llmtop will report live tokens/sec from intercepted responses.
-    #[arg(long, value_name = "PORT")]
-    pub proxy: Option<u16>,
+    /// Transparent reverse proxy port in front of Ollama. Point your client at
+    /// `http://127.0.0.1:<port>` (e.g. `OLLAMA_HOST=...`) to get live tok/s.
+    /// Enabled by default; disable with `--no-proxy`.
+    #[arg(long, value_name = "PORT", default_value_t = 11435)]
+    pub proxy: u16,
+
+    /// Disable the reverse proxy.
+    #[arg(long)]
+    pub no_proxy: bool,
+}
+
+impl Cli {
+    pub fn proxy_port(&self) -> Option<u16> {
+        if self.no_proxy { None } else { Some(self.proxy) }
+    }
 }

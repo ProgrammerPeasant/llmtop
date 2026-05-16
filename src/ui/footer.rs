@@ -20,7 +20,7 @@ pub fn draw(f: &mut Frame, area: Rect, app: &App) {
 
     let pause_marker = if app.paused { " [PAUSED]" } else { "" };
     let txt = format!(
-        "Session {h}:{m:02}:{s:02} · {energy} · {cost_str} · {co2} CO₂eq · tokens: {tok}{p}\n[q]uit  [p]ause  [c]lear",
+        "Session {h}:{m:02}:{s:02}  {energy}  {cost_str}  {co2} CO2  tokens: {tok}{p}\nq:quit  p:pause  c:clear",
         energy = fmt_energy(app.session_wh),
         cost_str = fmt_cost(cost),
         co2 = fmt_co2(g_co2),
@@ -39,9 +39,9 @@ pub fn draw(f: &mut Frame, area: Rect, app: &App) {
 /// shows three leading zeros and reads as nothing happened.
 fn fmt_energy(wh: f64) -> String {
     if wh < 1000.0 {
-        format!("{wh:.1} Wh")
+        format!("{wh:.1}Wh")
     } else {
-        format!("{:.2} kWh", wh / 1000.0)
+        format!("{:.2}kWh", wh / 1000.0)
     }
 }
 
@@ -49,9 +49,9 @@ fn fmt_energy(wh: f64) -> String {
 /// kg only kicks in for hours-long sessions.
 fn fmt_co2(g: f64) -> String {
     if g < 1000.0 {
-        format!("{g:.1} g")
+        format!("{g:.1}g")
     } else {
-        format!("{:.2} kg", g / 1000.0)
+        format!("{:.2}kg", g / 1000.0)
     }
 }
 
