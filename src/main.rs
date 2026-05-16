@@ -92,8 +92,9 @@ async fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, cli: Cli) ->
     });
 
     // Optional proxy: when --proxy is set, intercept generate/chat for tok/s.
-    let sink = app.cli.proxy.map(|_| proxy::new_sink());
-    if let (Some(port), Some(s)) = (app.cli.proxy, sink.clone()) {
+    let proxy_port = app.cli.proxy_port();
+    let sink = proxy_port.map(|_| proxy::new_sink());
+    if let (Some(port), Some(s)) = (proxy_port, sink.clone()) {
         let upstream = app.cli.ollama_url.clone();
         tokio::spawn(async move {
             let _ = proxy::run(port, upstream, s).await;
