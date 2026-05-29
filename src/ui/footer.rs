@@ -58,7 +58,7 @@ fn fmt_co2(g: f64) -> String {
 /// Always dollars. For tiny values, expand decimals so two significant
 /// digits remain visible — `$0.00` is useless feedback.
 fn fmt_cost(usd: f64) -> String {
-    if !(usd > 0.0) {
+    if usd <= 0.0 || usd.is_nan() {
         return "$0.00".into();
     }
     if usd >= 1.0 {
