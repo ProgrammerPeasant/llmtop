@@ -10,8 +10,9 @@ Set Height 480
 Set Theme "Catppuccin Mocha"
 Set Padding 12
 Set TypingSpeed 50ms
+Set Shell "bash"
 
 Type "llmtop"
 Enter
-Sleep 18s
+Sleep 22s
 Type "q"
