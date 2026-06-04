@@ -1,5 +1,9 @@
 # llmtop
 
+[![ci](https://github.com/ProgrammerPeasant/llmtop/actions/workflows/ci.yml/badge.svg)](https://github.com/ProgrammerPeasant/llmtop/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/llmtop.svg)](https://crates.io/crates/llmtop)
+[![license](https://img.shields.io/crates/l/llmtop.svg)](LICENSE)
+
 Terminal GPU monitor that links wattage to the LLM burning it. Tells you VRAM share, joules per token, hosted-API equivalent cost, and session energy/CO2.
 
 Ollama today. llama.cpp next.
