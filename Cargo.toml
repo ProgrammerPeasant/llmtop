@@ -5,6 +5,7 @@ edition = "2024"
 description = "Realtime TUI monitor for local LLM servers (ollama, llama.cpp). The only GPU monitor that knows what model is running and how much each token costs you in energy and dollar-equivalent."
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/ProgrammerPeasant/llmtop"
 keywords = ["llm", "ollama", "monitoring", "tui", "gpu"]
 categories = ["command-line-utilities"]
 
