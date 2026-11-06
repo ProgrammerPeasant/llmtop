@@ -23,6 +23,7 @@ pub enum AppEvent {
     Tick,
     Hardware(collectors::HardwareSnapshot),
     Ollama(Vec<collectors::ModelInfo>),
+    LlamaCpp(Vec<collectors::ModelInfo>),
 }
 
 #[tokio::main]
@@ -101,19 +102,39 @@ async fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, cli: Cli) ->
         });
     }
 
-    // Ollama poll.
-    let ollama_url = app.cli.ollama_url.clone();
-    let sink_for_poll = sink.clone();
-    tokio::spawn(async move {
-        let mut interval = tokio::time::interval(Duration::from_secs(1));
-        loop {
-            interval.tick().await;
-            let models = collectors::poll_ollama(&ollama_url, sink_for_poll.as_ref()).await;
-            if tx.send(AppEvent::Ollama(models)).is_err() {
-                break;
+    // Ollama poll (skipped with --no-ollama).
+    if app.cli.ollama_enabled() {
+        let ollama_url = app.cli.ollama_url.clone();
+        let sink_for_poll = sink.clone();
+        let ollama_tx = tx.clone();
+        tokio::spawn(async move {
+            let mut interval = tokio::time::interval(Duration::from_secs(1));
+            loop {
+                interval.tick().await;
+                let models = collectors::poll_ollama(&ollama_url, sink_for_poll.as_ref()).await;
+                if ollama_tx.send(AppEvent::Ollama(models)).is_err() {
+                    break;
+                }
             }
-        }
-    });
+        });
+    }
+
+    // llama.cpp poll (opt-in via --llamacpp-url).
+    if let Some(url) = app.cli.llamacpp_url.clone() {
+        let llama_tx = tx.clone();
+        tokio::spawn(async move {
+            let mut llama = collectors::llamacpp::LlamaCpp::new(url);
+            let mut interval = tokio::time::interval(Duration::from_secs(1));
+            loop {
+                interval.tick().await;
+                let models = llama.poll().await;
+                if llama_tx.send(AppEvent::LlamaCpp(models)).is_err() {
+                    break;
+                }
+            }
+        });
+    }
+    drop(tx);
 
     terminal.draw(|f| ui::draw(f, &app))?;
     while let Some(ev) = rx.recv().await {
@@ -126,6 +147,7 @@ async fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, cli: Cli) ->
             AppEvent::Tick => {}
             AppEvent::Hardware(snap) => app.update_hardware(snap),
             AppEvent::Ollama(models) => app.update_ollama(models),
+            AppEvent::LlamaCpp(models) => app.update_llamacpp(models),
         }
         terminal.draw(|f| ui::draw(f, &app))?;
     }

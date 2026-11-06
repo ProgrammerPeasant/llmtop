@@ -16,6 +16,9 @@ struct PsModel {
     name: String,
     #[serde(default)]
     size_vram: u64,
+    /// Present in newer Ollama releases.
+    #[serde(default)]
+    context_length: Option<u64>,
 }
 
 /// Tokens/sec is treated as 0 if no proxy sample arrived in this window.
@@ -61,6 +64,7 @@ pub async fn poll(base_url: &str, sink: Option<&Sink>) -> Vec<ModelInfo> {
                 vram_mb: m.size_vram / 1024 / 1024,
                 tokens_per_sec: tok_s,
                 total_tokens: total,
+                ctx_size: m.context_length.filter(|&n| n > 0),
             }
         })
         .collect()

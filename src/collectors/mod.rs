@@ -4,6 +4,7 @@
 pub mod nvidia;
 pub mod apple;
 pub mod ollama;
+pub mod llamacpp;
 
 #[derive(Debug, Clone, Default)]
 pub struct HardwareSnapshot {
@@ -30,6 +31,8 @@ pub struct ModelInfo {
     pub tokens_per_sec: f64,
     /// Monotonic counter — used to derive per-tick deltas for session totals.
     pub total_tokens: u64,
+    /// Context window size in tokens (llama.cpp `n_ctx`, Ollama `context_length`).
+    pub ctx_size: Option<u64>,
 }
 
 /// Hardware poll — tries NVIDIA, then Apple. Returns default when no backend present.
